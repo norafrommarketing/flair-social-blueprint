@@ -284,6 +284,7 @@ body { font-family: var(--font); background: var(--surface); color: var(--text);
   .g21 { grid-template-columns: 1fr; }
   .g2 { grid-template-columns: 1fr 1fr; }
   #panel-gaps .g2, #panel-method .g2 { grid-template-columns: 1fr; }
+  .trends-grid { grid-template-columns: 1fr 1fr !important; }
   .pillars { grid-template-columns: 1fr 1fr; }
   .series { grid-template-columns: 1fr; }
   .detail-stats { grid-template-columns: 1fr 1fr; }
@@ -620,7 +621,7 @@ body { font-family: var(--font); background: var(--surface); color: var(--text);
 <div id="panel-trends" class="panel">
   <div class="ph"><div class="ph-title">TikTok Trends</div><div class="ph-sub">16 viral formats from the last 6-9 months, adapted for Flair</div></div>
 
-  <div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:14px">
+  <div class="trends-grid" style="display:grid;grid-template-columns:repeat(4, 1fr);gap:14px">
     <div class="card" style="margin-bottom:0">
       <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:6px">Headphones / AirPod Swap</div>
       <div style="font-size:11px;color:var(--text-mid);line-height:1.55;margin-bottom:14px">Accidentally swapping AirPods and the music matches the other person's whole vibe or outfit.</div>
