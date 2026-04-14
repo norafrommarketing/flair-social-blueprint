@@ -256,29 +256,30 @@ body { font-family: var(--font); background: var(--surface); color: var(--text);
 .modal-cta:hover { opacity: 0.85; }
 
 /* ── MOBILE NAV ── */
-.mobile-nav { display: none; }
+.mobile-bottom-nav { display: none; }
 
 @media (max-width: 900px) {
   body { flex-direction: column; }
   .sidebar { display: none !important; }
   .main { margin-left: 0; padding: 20px 16px 48px; }
-  .mobile-nav {
-    display: flex; gap: 4px; overflow-x: auto;
-    padding: 10px 16px; background: var(--navy);
-    position: sticky; top: 0; z-index: 90;
-    -webkit-overflow-scrolling: touch;
+  .mobile-bottom-nav {
+    display: flex; justify-content: space-around; align-items: center;
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--navy); z-index: 200;
+    padding: 8px 4px; padding-bottom: max(8px, env(safe-area-inset-bottom));
+    border-top: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
   }
-  .mobile-nav button {
-    font-family: var(--font); font-size: 11px; font-weight: 500;
-    color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.1); border-radius: 6px;
-    padding: 6px 12px; white-space: nowrap; cursor: pointer;
-    transition: all 0.15s; flex-shrink: 0;
+  .mobile-bottom-nav button {
+    font-size: 18px; background: none; border: none;
+    color: rgba(255,255,255,0.35); cursor: pointer;
+    padding: 6px 8px; border-radius: 8px;
+    transition: all 0.15s; line-height: 1;
   }
-  .mobile-nav button:hover, .mobile-nav button.active {
+  .mobile-bottom-nav button.active {
     color: #fff; background: rgba(102,237,142,0.15);
-    border-color: rgba(102,237,142,0.3);
   }
+  .main { padding-bottom: 80px; }
   .stats { grid-template-columns: 1fr 1fr; }
   .g21 { grid-template-columns: 1fr; }
   .g2 { grid-template-columns: 1fr 1fr; }
@@ -318,16 +319,16 @@ body { font-family: var(--font); background: var(--surface); color: var(--text);
 </head>
 <body>
 
-<div class="mobile-nav">
-  <button class="active" onclick="go('overview',this);mobileNav(this)">Overview</button>
-  <button onclick="go('instagram',this);mobileNav(this)">Instagram</button>
-  <button onclick="go('tiktok',this);mobileNav(this)">TikTok</button>
-  <button onclick="go('gaps',this);mobileNav(this)">Gaps</button>
-  <button onclick="go('steal',this);mobileNav(this)">What to Steal</button>
-  <button onclick="go('trends',this);mobileNav(this)">Trends</button>
-  <button onclick="go('plan',this);mobileNav(this)" style="background:var(--green);color:var(--navy);font-weight:700">🔥 VAULT</button>
-  <button onclick="go('virality',this);mobileNav(this)">Virality</button>
-  <button onclick="go('method',this);mobileNav(this)">Methodology</button>
+<div class="mobile-bottom-nav">
+  <button class="active" onclick="go('overview',this);mobileNav2(this)" title="Overview">◉</button>
+  <button onclick="go('instagram',this);mobileNav2(this)" title="Instagram">📷</button>
+  <button onclick="go('tiktok',this);mobileNav2(this)" title="TikTok">▶</button>
+  <button onclick="go('gaps',this);mobileNav2(this)" title="Gaps">◈</button>
+  <button onclick="go('steal',this);mobileNav2(this)" title="What to Steal">▦</button>
+  <button onclick="go('trends',this);mobileNav2(this)" title="Trends">📈</button>
+  <button onclick="go('plan',this);mobileNav2(this)" title="Content Vault" style="background:var(--green);color:var(--navy)">🔥</button>
+  <button onclick="go('virality',this);mobileNav2(this)" title="Creating Virality" style="background:var(--purple);color:#fff">⚡</button>
+  <button onclick="go('method',this);mobileNav2(this)" title="Methodology">⚙</button>
 </div>
 
 <!-- SIDEBAR -->
@@ -1023,7 +1024,11 @@ function renderGrid(){
 }
 
 function mobileNav(btn){
-  document.querySelectorAll('.mobile-nav button').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.mobile-bottom-nav button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+function mobileNav2(btn){
+  document.querySelectorAll('.mobile-bottom-nav button').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
 }
 
