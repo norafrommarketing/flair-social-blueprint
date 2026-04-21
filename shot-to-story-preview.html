@@ -267,6 +267,8 @@
     .shots-header > :nth-child(4) { display: none; }
     .shot-row { grid-template-columns: 50px 50px 1fr; }
     .shot-move { display: none; }
+    .shot-row.active { background: transparent; border-bottom-color: rgba(10,10,10,0.08); }
+    .shot-row.active .shot-time { color: var(--purple); }
   }
 </style>
 </head>
@@ -749,7 +751,7 @@ STUDIES.forEach((study, idx) => {
     rows.forEach((row, i) => {
       row.classList.toggle("active", i === activeIdx);
     });
-    if (activeIdx >= 0) {
+    if (activeIdx >= 0 && window.matchMedia("(min-width: 821px)").matches) {
       rows[activeIdx].scrollIntoView({ block: "nearest", behavior: "smooth" });
     }
   });
