@@ -264,18 +264,19 @@ body { font-family: var(--font); background: var(--surface); color: var(--text);
   .sidebar { display: none !important; }
   .main { margin-left: 0; padding: 20px 16px 48px; }
   .mobile-bottom-nav {
-    display: flex; justify-content: space-around; align-items: center;
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px;
     position: fixed; bottom: 0; left: 0; right: 0;
     background: var(--navy); z-index: 200;
-    padding: 8px 4px; padding-bottom: max(8px, env(safe-area-inset-bottom));
+    padding: 8px 6px; padding-bottom: max(8px, env(safe-area-inset-bottom));
     border-top: 1px solid rgba(255,255,255,0.1);
     box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
   }
   .mobile-bottom-nav button {
     font-size: 18px; background: none; border: none;
     color: rgba(255,255,255,0.35); cursor: pointer;
-    padding: 6px 8px; border-radius: 8px;
+    padding: 8px 4px; border-radius: 8px;
     transition: all 0.15s; line-height: 1;
+    display: flex; align-items: center; justify-content: center;
   }
   .mobile-bottom-nav button.active {
     color: #fff; background: rgba(102,237,142,0.15);
@@ -401,6 +402,7 @@ body { font-family: var(--font); background: var(--surface); color: var(--text);
   <button onclick="go('trends',this);mobileNav2(this)" title="Trends">📈</button>
   <button onclick="go('plan',this);mobileNav2(this)" title="Content Vault" style="background:var(--green);color:var(--navy)">🔥</button>
   <button onclick="go('virality',this);mobileNav2(this)" title="Creating Virality" style="background:var(--purple);color:#fff">⚡</button>
+  <button onclick="go('story',this);mobileNav2(this)" title="From Shot to Story" style="background:var(--amber);color:var(--navy)">🎬</button>
   <button onclick="go('method',this);mobileNav2(this)" title="Methodology">⚙</button>
 </div>
 
