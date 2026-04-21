@@ -751,8 +751,19 @@ STUDIES.forEach((study, idx) => {
     rows.forEach((row, i) => {
       row.classList.toggle("active", i === activeIdx);
     });
-    if (activeIdx >= 0 && window.matchMedia("(min-width: 821px)").matches) {
-      rows[activeIdx].scrollIntoView({ block: "nearest", behavior: "smooth" });
+    if (activeIdx >= 0 && list.scrollHeight > list.clientHeight + 1) {
+      // Only scroll when the list itself overflows (desktop). On mobile the
+      // list flows inline with no max-height, so scrollIntoView would scroll
+      // the whole page — skip entirely in that case.
+      const row = rows[activeIdx];
+      const listRect = list.getBoundingClientRect();
+      const rowRect = row.getBoundingClientRect();
+      if (rowRect.top < listRect.top || rowRect.bottom > listRect.bottom) {
+        const delta = rowRect.top < listRect.top
+          ? rowRect.top - listRect.top
+          : rowRect.bottom - listRect.bottom;
+        list.scrollBy({ top: delta, behavior: "smooth" });
+      }
     }
   });
 
