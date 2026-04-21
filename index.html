@@ -376,6 +376,10 @@ body { font-family: var(--font); background: var(--surface); color: var(--text);
 #panel-story .s2s-shot-type:hover::after { opacity: 1; }
 #panel-story .s2s-shot-desc { line-height: 1.4; color: var(--navy); }
 #panel-story .s2s-shot-move { font-size: 11px; color: var(--text-mid); font-style: italic; text-align: right; }
+@media (max-width: 1023px), (hover: none) {
+  #panel-story .s2s-shot-row.active { background: transparent; border-bottom-color: #e6e6e2; }
+  #panel-story .s2s-shot-row.active .s2s-shot-time { color: var(--purple); }
+}
 @media (max-width: 900px) {
   #panel-story .s2s-h1 { font-size: 32px; }
   #panel-story .s2s-card-head { flex-direction: column; align-items: flex-start; }
@@ -1833,7 +1837,20 @@ const STUDIES = [
       lastActiveIdx = activeIdx;
       const rows = list.querySelectorAll(".s2s-shot-row");
       rows.forEach((row, i) => row.classList.toggle("active", i === activeIdx));
-      if (activeIdx >= 0) rows[activeIdx].scrollIntoView({ block: "nearest", behavior: "smooth" });
+      const isNarrow = window.innerWidth < 1024;
+      const isTouch = window.matchMedia("(hover: none)").matches;
+      const listOverflows = list.scrollHeight > list.clientHeight + 1;
+      if (activeIdx >= 0 && !isNarrow && !isTouch && listOverflows) {
+        const row = rows[activeIdx];
+        const listRect = list.getBoundingClientRect();
+        const rowRect = row.getBoundingClientRect();
+        if (rowRect.top < listRect.top || rowRect.bottom > listRect.bottom) {
+          const delta = rowRect.top < listRect.top
+            ? rowRect.top - listRect.top
+            : rowRect.bottom - listRect.bottom;
+          list.scrollBy({ top: delta, behavior: "smooth" });
+        }
+      }
     });
     stack.appendChild(card);
   });
