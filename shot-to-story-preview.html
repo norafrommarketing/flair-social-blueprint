@@ -1,0 +1,760 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>From Shot To Story: Preview</title>
+<style>
+  :root {
+    --ink: #0a0a0a;
+    --paper: #fafaf7;
+    --muted: #6b6b6b;
+    --green: #66ed8e;
+    --purple: #6500c0;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    padding: 48px 24px;
+  }
+  .wrap { max-width: 1200px; margin: 0 auto; }
+
+  .preview-note {
+    background: var(--purple);
+    color: #fff;
+    padding: 12px 16px;
+    margin-bottom: 24px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .preview-note b { color: var(--green); }
+
+  /* Section header */
+  .section-head {
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 16px;
+    margin-bottom: 32px;
+  }
+  .eyebrow {
+    display: inline-block;
+    background: var(--purple);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    padding: 6px 10px;
+    margin-bottom: 12px;
+  }
+  h1 {
+    font-size: 52px;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    margin: 0 0 8px;
+    line-height: 1;
+  }
+  .sub {
+    font-size: 15px;
+    color: var(--muted);
+    margin: 0;
+    max-width: 680px;
+  }
+
+  /* Stack of cards */
+  .stack {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+  }
+
+  /* Card */
+  .card {
+    border: 2px solid var(--ink);
+    background: #fff;
+    overflow: hidden;
+  }
+  .card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+    padding: 20px 24px;
+    background: var(--ink);
+    color: #fff;
+  }
+  .card-head-left { min-width: 0; }
+  .video-num {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    color: var(--green);
+    margin-bottom: 4px;
+  }
+  .card-head h2 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 900;
+    letter-spacing: -0.01em;
+  }
+  .card-head-right {
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .route-tag {
+    display: inline-block;
+    background: var(--green);
+    color: var(--ink);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    padding: 6px 10px;
+    margin-bottom: 6px;
+  }
+  .route-tag.adapt {
+    background: var(--purple);
+    color: #fff;
+  }
+  .route-tag.direct::before { content: "★ "; }
+  .route-label {
+    display: block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    color: #999;
+    text-transform: uppercase;
+  }
+
+  /* Body split */
+  .card-body {
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+  }
+  .video-col {
+    background: #000;
+    position: relative;
+    height: 520px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .video-col video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+
+  .shots-col {
+    border-left: 1px solid var(--ink);
+    display: flex;
+    flex-direction: column;
+  }
+  .why {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--ink);
+    background: #f5f2e8;
+  }
+  .why-label {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    color: var(--purple);
+    margin-bottom: 6px;
+  }
+  .why-text {
+    font-size: 14px;
+    line-height: 1.55;
+    margin: 0;
+  }
+
+  .shots-header {
+    display: grid;
+    grid-template-columns: 56px 56px 1fr 80px;
+    gap: 12px;
+    padding: 10px 20px;
+    background: #f0f0ee;
+    border-bottom: 1px solid var(--ink);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+  }
+  .shots-list {
+    flex: 1;
+    overflow-y: auto;
+    max-height: 340px;
+  }
+  .shot-row {
+    display: grid;
+    grid-template-columns: 56px 56px 1fr 80px;
+    gap: 12px;
+    padding: 12px 20px;
+    border-bottom: 1px solid #e6e6e2;
+    cursor: pointer;
+    transition: background 0.12s ease;
+    font-size: 13px;
+    align-items: start;
+  }
+  .shot-row:hover { background: #f5f2e8; }
+  .shot-row.active {
+    background: var(--green);
+    border-bottom-color: var(--ink);
+  }
+  .shot-time {
+    font-family: "SF Mono", Menlo, monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--purple);
+  }
+  .shot-row.active .shot-time { color: var(--ink); }
+  .shot-type {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    padding: 2px 6px;
+    background: var(--ink);
+    color: #fff;
+    display: inline-block;
+    height: fit-content;
+    position: relative;
+  }
+  .shot-type::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--ink);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    padding: 6px 10px;
+    border-radius: 4px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.12s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+    z-index: 10;
+  }
+  .shot-type:hover::after { opacity: 1; }
+  .shot-desc { line-height: 1.4; }
+  .shot-move {
+    font-size: 11px;
+    color: var(--muted);
+    font-style: italic;
+    text-align: right;
+  }
+
+  @media (max-width: 820px) {
+    body { padding: 24px 12px; }
+    h1 { font-size: 36px; }
+    .card-head {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .card-head-right { text-align: left; }
+    .card-body { grid-template-columns: 1fr; }
+    .video-col { height: auto; min-height: 280px; max-height: 70vh; }
+    .shots-col { border-left: none; border-top: 1px solid var(--ink); }
+    .shots-list { max-height: none; }
+    .shots-header { grid-template-columns: 50px 50px 1fr; }
+    .shots-header > :nth-child(4) { display: none; }
+    .shot-row { grid-template-columns: 50px 50px 1fr; }
+    .shot-move { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="preview-note">
+    <b>PREVIEW.</b> Full section with all studies. Review tone, order, copy. Once locked, I'll integrate into the main dashboard nav.
+  </div>
+
+  <div class="section-head">
+    <span class="eyebrow">FROM SHOT TO STORY</span>
+    <h1>Breaking Down Emotional Travel, Frame by Frame</h1>
+    <p class="sub">Each video is analyzed shot by shot to understand how videography, human moments, movement, and pacing come together to create emotional travel content.</p>
+  </div>
+
+  <div class="stack" id="stack"></div>
+
+</div>
+
+<script>
+const STUDIES = [
+  {
+    num: "01",
+    title: "Canada Rockies",
+    src: "Videos/01_Canada_Rockies.mp4",
+    direct: true,
+    route: "YYC · YVR · YLW",
+    flair: "This one runs as-is on our YYC, YVR, and YLW routes. We already fly here. Open on the Flair tail lifting off from YYC at sunrise, then straight into the lake-jump and road-trip shots. The plane isn't a cutaway, it's the opening promise: the trip starts the second you board.",
+    shots: [
+      { t: 0,  type: "MS",  desc: "Woman with camera at Moraine Lake",      move: "Static"   },
+      { t: 1,  type: "MS",  desc: "Woman raises camera to eye",              move: "Static"   },
+      { t: 3,  type: "WS",  desc: "Man wading into turquoise lake",          move: "Static"   },
+      { t: 5,  type: "WS",  desc: "Two hikers in alpine meadow",             move: "Static"   },
+      { t: 6,  type: "WS",  desc: "Three friends on forest road",            move: "Tracking" },
+      { t: 7,  type: "MS",  desc: "Man celebrating on summit",               move: "Handheld" },
+      { t: 8,  type: "WS",  desc: "Dock dive into misty lake",               move: "Static"   },
+      { t: 9,  type: "WS",  desc: "Four hikers overlooking range",           move: "Static"   },
+      { t: 11, type: "MS",  desc: "Dock jump, closer angle",                 move: "Tracking" },
+      { t: 12, type: "CU",  desc: "Splash impact",                           move: "Handheld" },
+      { t: 13, type: "WS",  desc: "Couple wading at cliff base",             move: "Static"   },
+      { t: 14, type: "MS",  desc: "Man out of car window",                   move: "Tracking" },
+      { t: 15, type: "WS",  desc: "Couple swimming Moraine Lake",            move: "Static"   },
+      { t: 16, type: "MS",  desc: "Woman driving smiling",                   move: "Static"   },
+      { t: 17, type: "MCU", desc: "Hiker in bucket hat",                     move: "Handheld" },
+      { t: 18, type: "WS",  desc: "Group on outcrop above glacier",          move: "Static"   },
+    ]
+  },
+  {
+    num: "02",
+    title: "Los Angeles",
+    src: "Videos/02_Los_Angeles.mp4",
+    direct: true,
+    route: "LAX",
+    flair: "This runs direct on our LAX route. Open with the Flair tail at LAX, then straight into the downtown POV, the pink building, Universal, the tiki bar, Santa Monica Pier at night. No translation needed. This is the city itself, and we're the carrier that makes it a weekend trip from YYZ or YYC instead of a fantasy.",
+    shots: [
+      { t: 0,   type: "POV", desc: "Driving downtown LA, 'Thru Traffic 4th St' sign visible",    move: "Tracking"       },
+      { t: 1,   type: "MS",  desc: "Woman in white shirt smiling in front of pink yogurt shop", move: "Tracking"       },
+      { t: 1.5, type: "MS",  desc: "Mario and Luigi mascots at Super Nintendo World",            move: "Static"         },
+      { t: 2.5, type: "WS",  desc: "Super Nintendo World landscape, Yoshi's Island design",     move: "Low Angle"      },
+      { t: 3,   type: "MS",  desc: "Woman in front of illuminated LED dot installation",         move: "Handheld"       },
+      { t: 3.5, type: "MS",  desc: "Woman at tiki bar counter ordering drink",                   move: "Handheld"       },
+      { t: 4,   type: "CU",  desc: "Two tiki cocktails on bar, tattooed hand with straws",       move: "Static"         },
+      { t: 5,   type: "MS",  desc: "Woman sipping tiki drink outdoors, Lakers fan behind",       move: "Handheld"       },
+      { t: 5.5, type: "WS",  desc: "Ferris wheel at Irvine Spectrum, palm trees, blue hour",     move: "Static"         },
+      { t: 6,   type: "MS",  desc: "Woman posing at outdoor shopping plaza at night",            move: "Handheld"       },
+      { t: 6.5, type: "POV", desc: "Inside ferris wheel car looking out at city dusk",           move: "Static"         },
+      { t: 7.5, type: "MCU", desc: "Woman in ferris wheel cabin at night, city lights behind",   move: "Handheld"       },
+      { t: 8.5, type: "POV", desc: "Ferris wheel cabin view at dusk, sunset horizon",            move: "Static"         },
+      { t: 9,   type: "POV", desc: "Subject holding phone to film sunset from ferris wheel",     move: "Static"         },
+    ]
+  },
+  {
+    num: "03",
+    title: "Chicago",
+    adaptTo: "Toronto (YYZ)",
+    src: "Videos/03_Chicago.mp4",
+    route: "YYZ winter",
+    flair: "Chicago's elevated CTA and Lake Michigan shoreline maps almost one-to-one to Toronto. Swap the CTA for a TTC streetcar on Queen Street, the Lake Michigan ice shots for Sugar Beach or the Scarborough Bluffs in February. Keep the cold-weather grit. It's a story Flair uniquely owns, because we're the ones flying Canadians toward and away from winter. Plane lifts off at YYZ as the last shot.",
+    shots: [
+      { t: 0,    type: "WS", desc: "CTA L-train at Damen station curve",                   move: "Static"   },
+      { t: 2,    type: "WS", desc: "Teal figure enters as train departs (transition begins)", move: "Static"   },
+      { t: 2.5,  type: "MS", desc: "Father + child in teal on icy Lake Michigan shore",    move: "Tracking" },
+      { t: 3.5,  type: "WS", desc: "Couple on icy shore looking out at Lake Michigan",     move: "Static"   },
+      { t: 7.5,  type: "WS", desc: "Dissolve back to L-train as woman crosses foreground", move: "Static"   },
+      { t: 8,    type: "WS", desc: "L-train approaches curve again",                        move: "Static"   },
+      { t: 10.5, type: "WS", desc: "Red billboard dissolves into red jacket",              move: "Static"   },
+      { t: 11,   type: "WS", desc: "Chicago skyline at dusk from North Avenue Beach",      move: "Static"   },
+      { t: 12,   type: "WS", desc: "Same view, additional figure at railing",              move: "Static"   },
+      { t: 13,   type: "WS", desc: "Hero hold on skyline with stormy clouds (5s hold)",    move: "Static"   },
+    ]
+  },
+  {
+    num: "04",
+    title: "Warm Destination",
+    adaptTo: "Fort Lauderdale (FLL)",
+    src: "Videos/04_Honolulu.mp4",
+    route: "FLL",
+    flair: "This is a film about making memories, not taking vacations. Every shot is someone witnessing: the elderly man on the bench, the woman with the Fujifilm, the hooded figure at the shore. It bookends with the same bench at the end, making the whole thing feel like a kept memory. That framing translates perfectly to FLL. Swap the skyline for Las Olas Beach at sunrise, the volcanic rocks for the coral outcrops at Hollywood Beach. Flair gets Canadians to this warmth in under five hours. The reel isn't 'look at this beach,' it's 'look at yourself remembering it later.'",
+    shots: [
+      { t: 0,  type: "WS", desc: "Elderly man on bench under palm trees at sunrise, ocean + mountains behind", move: "Static"             },
+      { t: 2,  type: "WS", desc: "Woman in white photographing skyline, man crosses foreground, palms framing",  move: "Static"             },
+      { t: 6,  type: "WS", desc: "Person with dog on seawall at sunset, cyclists passing",                         move: "Static"             },
+      { t: 9,  type: "WS", desc: "Hooded figure at rocky shore, framed by palm tree, skyline behind",              move: "Static"             },
+      { t: 13, type: "MS", desc: "Man photographing skyline with phone, woman with camera beside him, golden hour", move: "Static"             },
+      { t: 16, type: "CU", desc: "Waves crashing against volcanic rocks, golden hour reflection",                 move: "Static"             },
+      { t: 19, type: "WS", desc: "Pacific sunset with sailboats on horizon, soft gradient sky",                   move: "Static"             },
+      { t: 23, type: "CU", desc: "Rack focus to woman smiling behind Fujifilm X-T3, skyline blurred",             move: "Static, rack focus" },
+      { t: 26, type: "WS", desc: "Callback: elderly man on bench under palms, closing bookend",                  move: "Static"             },
+    ]
+  },
+  {
+    num: "05",
+    title: "Boracay",
+    adaptTo: "Puerto Vallarta (PVR)",
+    src: "Videos/06_Boracay.mp4",
+    route: "PVR",
+    flair: "Boracay's golden-hour pacing translates straight to PVR. Trade the lifeguard tower for the PVR Malecón sculptures, the sunset boat for a panga off Los Muertos Pier. The 'man taking sunset photo' beat becomes a couple with margaritas at Playa Los Arcos. Flair tail against the Sierra Madre on descent. That's the money shot.",
+    shots: [
+      { t: 0,   type: "OTS", desc: "Man in navy tank walks through crowded beachfront promenade, souvenir stalls + palms", move: "Tracking"         },
+      { t: 1,   type: "WS",  desc: "Lifeguard tower with yellow rescue board, empty white beach chairs, turquoise water",   move: "Static"           },
+      { t: 1.2, type: "MS",  desc: "Stray tan dog sleeping on sand under palm shade, kites in sky, woman in distance",      move: "Static"           },
+      { t: 2,   type: "WS",  desc: "Kids playing near moored bangka boats, shot through flapping white cloth foreground",   move: "Handheld"         },
+      { t: 3,   type: "WS",  desc: "Palm fronds + yellow frangipani leaves against blue sky, straight up",                   move: "Tilt up"          },
+      { t: 4,   type: "MS",  desc: "Man with coconut, 'BORACAY' yellow title card over ocean, palms + umbrellas framing",    move: "Slow push-in"     },
+      { t: 6,   type: "WS",  desc: "Coconut palms against overcast sky, resort rooftop right, tropical plants foreground",   move: "Static"           },
+      { t: 6.3, type: "MS",  desc: "Man walks away through resort courtyard, framed between two yellow walls",               move: "Tracking"         },
+      { t: 7,   type: "WS",  desc: "Two locals wade between bangkas in turquoise water, framed by blue outrigger hull",     move: "Static"           },
+      { t: 7.3, type: "WS",  desc: "Silhouette of party boat at golden hour, sun dipping low, scattered small boats",        move: "Static"           },
+      { t: 8,   type: "WS",  desc: "Woman in black against palm trunk on White Beach, kiteboarders, hillside villas",        move: "Static"           },
+      { t: 9,   type: "MS",  desc: "Silhouette of man in floral shirt photographing boat at sunset, life vests foreground",  move: "Static"           },
+      { t: 10,  type: "CU",  desc: "Bangka outrigger beams cutting through sunset-orange water",                             move: "Handheld"         },
+      { t: 10.3,type: "MS",  desc: "Lifeguard under station with yellow rescue board, swimmer wading behind",                move: "Static"           },
+      { t: 11,  type: "WS",  desc: "Two men sit on White Beach, blue sailboat in distance, mountains across the water",     move: "Static"           },
+      { t: 12,  type: "OTS", desc: "Over-shoulder of shirtless man on boat looking out, mountains and speedboats behind",    move: "Handheld"         },
+      { t: 13,  type: "WS",  desc: "Man swims alone in clear turquoise water seen from boat rail",                           move: "Static"           },
+      { t: 14,  type: "WS",  desc: "Group on boat railing at golden hour, one filming, rigging against sky",                 move: "Static"           },
+      { t: 14.3,type: "ECU", desc: "Extreme close-up of sunglasses with sunset horizon reflected in lens",                  move: "Static, rack focus" },
+      { t: 15,  type: "WS",  desc: "Classic paraw sailboat cuts across bay, framed between masts, life vests foreground",    move: "Static"           },
+      { t: 16,  type: "WS",  desc: "Tree-lined walkway with red foliage overhead, tourists walking toward beach",            move: "Slow push-in"     },
+      { t: 17,  type: "MS",  desc: "Security guard in black among white loungers under yellow-white umbrellas, swimmers",    move: "Handheld"         },
+      { t: 18,  type: "CU",  desc: "Sun flares through plumeria leaves with palm fronds silhouetted, backlit green",         move: "Static"           },
+      { t: 18.3,type: "WS",  desc: "Busy walkway on White Beach, Paradise Garden Resort sign overhead, strolling tourists",  move: "Static"           },
+      { t: 19,  type: "MS",  desc: "Silhouette of man walking shoreline at sunset, holding camera, loungers framing",        move: "Tracking"         },
+      { t: 20,  type: "OTS", desc: "Over-shoulder silhouette watching sunset from boat rail, party boats on orange horizon", move: "Static"           },
+    ]
+  },
+  {
+    num: "06",
+    title: "Indonesia Villa",
+    adaptTo: "Kingston (KIN)",
+    src: "Videos/07_Indonesia_Villa.mp4",
+    route: "KIN",
+    flair: "The village-dock and fishing-pier texture translates directly to Kingston's waterfront and the Port Royal fishing villages. Swap the traditional boat for a Jamaican fishing canoe at sunset, the children pulling the cart for a Coronation Market vendor. This is the authentic Jamaica that MBJ tourists never see, and Flair gets them there. Plane shot at KIN opens or closes.",
+    shots: [
+      { t: 0,  type: "WS", desc: "Wooden longtail passenger boat across estuary, overcast sky, distant treeline",            move: "Tracking, speed ramp"   },
+      { t: 2,  type: "WS", desc: "Busy dock crowded with people in hijabs, fishing nets piled, waterfront shacks behind",    move: "Static, speed ramp"     },
+      { t: 4,  type: "MS", desc: "Tracking behind man with fishing rod + pink cooler through wet village path of stilt houses", move: "Tracking, speed ramp"   },
+      { t: 6,  type: "WS", desc: "Teal/red village gate 'Selamat Datang Di Desa Telaga VII', two boys pushing wooden cart",  move: "Static, speed ramp"     },
+      { t: 8,  type: "MS", desc: "Man + woman stepping off dock past boat loaded with blue water jugs, fishing vessel horizon", move: "Handheld, speed ramp"   },
+      { t: 10, type: "MS", desc: "Young man in black cap fishing from boat at dusk, second angler foreground, moody blue sky", move: "Static, speed ramp"     },
+      { t: 11, type: "WS", desc: "Circular transition reveal into next scene showing man in white cap near poolside water",   move: "Transition, fade to black" },
+    ]
+  },
+  {
+    num: "07",
+    title: "Island View",
+    adaptTo: "St. John (MBJ) or Sea to Sky (YVR)",
+    src: "Videos/08_US_Virgin_Islands.mp4",
+    route: "MBJ / YVR",
+    flair: "This coastal POV drive goes two ways for Flair. Caribbean route: run it shot-for-shot on the MBJ-to-Ocho Rios drive along the north coast, same winding road, same ocean-on-the-left reveal. Canadian route: it's the Sea to Sky Highway out of YVR, with Howe Sound replacing the Caribbean and Shannon Falls replacing Trunk Bay. Same grammar, two climates. Flair plane in the opening frame either way. The road trip starts on the jet bridge.",
+    shots: [
+      { t: 0, type: "POV", desc: "Driving along a winding coastal road in St. John", move: "Tracking" },
+      { t: 7, type: "WS",  desc: "Panoramic view of Trunk Bay and offshore cays",    move: "Static"   },
+    ]
+  },
+  {
+    num: "08",
+    title: "Thailand",
+    adaptTo: "Montego Bay (MBJ)",
+    src: "Videos/09_Thailand.mp4",
+    route: "MBJ",
+    flair: "Thailand's establishing-shot montage is the MBJ arrival formula. Trade the 7-Eleven for a Juici Patties sign, the longtail boats for jet skis at Doctor's Cave Beach, the Erawan Museum for Rose Hall Great House. The aerial hidden-cove shot becomes a drone pass over Negril. Flair plane lands at MBJ in shot four. Everything before it is the tease.",
+    shots: [
+      { t: 0,    type: "MS",     desc: "Selfie of woman in yellow bandana + cat-eye sunglasses, pink bikini, palm hillside behind", move: "Handheld selfie"          },
+      { t: 0.3,  type: "WS",     desc: "Karst bay beach with anchored longtail on rock, tourists on sand, beach bar right",         move: "Handheld"                 },
+      { t: 0.6,  type: "MS",     desc: "7-Eleven sign hanging from white pole, green pharmacy cross below, tiled roof",             move: "Static, slight tilt up"   },
+      { t: 1,    type: "MS",     desc: "Hand holding green coconut with cut top, palm fronds overhead, turquoise bay behind",        move: "Static"                   },
+      { t: 1.2,  type: "MS",     desc: "Woman in snorkel mask at surface, hair fanned in water, hand reaching to camera, fish",      move: "Handheld underwater"      },
+      { t: 1.4,  type: "WS",     desc: "Chinese temple gate with red lanterns + dragon ornaments, Bangkok Chinatown",                move: "Static, slight tilt up"   },
+      { t: 1.6,  type: "MS",     desc: "Side view of elephant eating grass, second elephant partially visible, banana trees",        move: "Static"                   },
+      { t: 1.8,  type: "WS",     desc: "Thai fruit stall with bananas, dragonfruit, grapes, price tags reading 25 and 15",           move: "Static"                   },
+      { t: 2,    type: "WS",     desc: "POV from longtail through Khao Sok karst lagoon, limestone towers, passing tour boats",      move: "Tracking"                 },
+      { t: 2.3,  type: "WS",     desc: "Beach framed by coconut fronds, blonde woman at water's edge, couple on bench in shade",     move: "Static"                   },
+      { t: 2.6,  type: "WS",     desc: "High aerial of small island in turquoise reef water, one speedboat crossing bay",            move: "Static aerial"            },
+      { t: 2.9,  type: "WS",     desc: "Three moored longtails on empty beach with karst cliffs, dramatic cloudy sky",               move: "Static"                   },
+      { t: 3,    type: "MS",     desc: "'WELCOME TO THAILAND' title sequence: woman jumps, runs past camera, title animates in",   move: "Handheld tracking"        },
+      { t: 8,    type: "MS",     desc: "RETURN: pink bikini selfie with full 'WELCOME TO THAILAND' title over her",                 move: "Handheld selfie"          },
+      { t: 8.5,  type: "WS",     desc: "RETURN: karst bay beach with full title treatment, letterbox bars appearing",               move: "Handheld"                 },
+      { t: 9,    type: "MS",     desc: "RETURN: coconut-under-palms in letterboxed frame, title still holding",                     move: "Static"                   },
+      { t: 9.3,  type: "WS",     desc: "RETURN: Chinatown gate with letterbox bars, title morphing to cursive",                     move: "Static, slight tilt up"   },
+      { t: 9.6,  type: "MS",     desc: "RETURN: elephant side profile in letterboxed frame, title holding",                         move: "Static"                   },
+      { t: 10,   type: "WS",     desc: "RETURN: Khao Sok karst POV in letterboxed frame, title transitioning",                      move: "Tracking"                 },
+      { t: 10.3, type: "WS",     desc: "Aerial over turquoise water, title shrinking into letterbox transition",                     move: "Static aerial"            },
+      { t: 10.6, type: "TR",     desc: "Letterbox pinch, frame compresses to horizontal sliver against black",                       move: "Transition"               },
+      { t: 11,   type: "WS",     desc: "High aerial into karst cove with crescent beach, emerald water, forested cliffs framing",    move: "Slow push-in aerial"      },
+      { t: 11.5, type: "WS",     desc: "Couple on rope swing silhouette, Railay crescent cove with swimmers under limestone cliff",  move: "Static"                   },
+      { t: 12,   type: "MS",     desc: "Three-headed Erawan elephant statue against blue sky, framed by tree foliage",                move: "Static, tilt up"          },
+      { t: 12.5, type: "WS",     desc: "Silhouetted figures on tidal flat at sunset, orange sky, ships on horizon",                   move: "Static aerial"            },
+      { t: 13,   type: "MS",     desc: "Underwater reef with sergeant major fish and yellow jacks among plate corals",                  move: "Handheld underwater"      },
+      { t: 13.3, type: "WS",     desc: "Turquoise lagoon with swimmers on distant sandbar, forested mountain behind",                move: "Static"                   },
+      { t: 13.6, type: "WS",     desc: "Koh Poda karst tower rising from sea with speedboat + longtail at yellow-sand beach",        move: "Static"                   },
+      { t: 14,   type: "WS",     desc: "Viewpoint over Phang Nga bay through green railing, scattered karst islands",                move: "Static"                   },
+      { t: 14.5, type: "WS",     desc: "Airplane window view at dusk, flydubai wing against orange-teal horizon gradient",          move: "Static"                   },
+      { t: 15,   type: "WS",     desc: "Beach silhouettes at sunset, golden reflection trail on water, people walking wet sand",     move: "Static"                   },
+      { t: 15.3, type: "MS",     desc: "Night market fruit stall with longan, red apples, grapes, rose apples",                         move: "Static"                   },
+      { t: 15.6, type: "WS",     desc: "Khao Sok lake with moored longtail tour boats, layered karst mountains, reflective water",   move: "Static"                   },
+      { t: 16,   type: "WS",     desc: "Crowded beach with umbrellas, tourists wading in turquoise shallows, longtail right",        move: "Handheld"                 },
+      { t: 16.3, type: "WS",     desc: "Krabi street with parked mopeds, Steakhouse + DIVER INN + ThaiFood signs, karst cliffs behind", move: "Static"                   },
+      { t: 16.6, type: "CU",     desc: "Snorkel selfie: woman in dive mask, red bracelet, sun flare, beach behind",                 move: "Handheld selfie"          },
+      { t: 17,   type: "WS",     desc: "Three longtails moored at Koh Adang-style beach, hanging fruit branch in upper foreground",  move: "Static"                   },
+      { t: 17.3, type: "WS",     desc: "Crowded sandbar in turquoise lagoon, woman in white cap swimming foreground",                 move: "Handheld"                 },
+      { t: 17.6, type: "WS",     desc: "Shallow coral reef with schooling parrotfish over plate and brain corals",                    move: "Handheld underwater"      },
+      { t: 17.8, type: "WS",     desc: "Khao Sok karst POV from longtail bow, limestone spires, two tour boats flanking",             move: "Tracking"                 },
+      { t: 18,   type: "WS",     desc: "Palm-framed beach with pastel sunset, blonde woman at water's edge, sun loungers in shade",   move: "Static"                   },
+      { t: 18.5, type: "MS",     desc: "Hand holding green coconut return, palm fronds, turquoise bay + forested hill behind",        move: "Static"                   },
+      { t: 19,   type: "WS",     desc: "Sandbar with swimmers, rock outcrop with longtails, tourists walking shore",                  move: "Handheld"                 },
+      { t: 19.3, type: "WS",     desc: "Koh Lipe beach through palm fringe, rocky islet in turquoise bay, anchored longtails",        move: "Static, slight tracking"  },
+      { t: 19.6, type: "WS",     desc: "Ornate Thai temple with green tiled roofs + gold carvings (Erawan Museum / Ancient City)",    move: "Static, tilt up"          },
+      { t: 20,   type: "WS",     desc: "Bangkok night skyline from rooftop bar, red laser beam cutting toward lit skyscraper",        move: "Static"                   },
+      { t: 20.3, type: "WS",     desc: "Benjakitti Park promenade with palms, lake, Bangkok skyscrapers in warm afternoon light",     move: "Static"                   },
+      { t: 20.6, type: "WS",     desc: "Tree-lined park path with jogger approaching, skyscrapers behind palms, walkers left",        move: "Static"                   },
+      { t: 21,   type: "WS",     desc: "Same park path, jogger closer to camera, walkers passing, skyscrapers behind",               move: "Slow push-in"             },
+    ]
+  },
+  {
+    num: "09",
+    title: "Tokyo Flea Market",
+    adaptTo: "Guadalajara (GDL)",
+    src: "Videos/10_Tokyo_Flea_Market.mp4",
+    route: "GDL",
+    flair: "The flea-market-to-late-night-eatery arc is a Guadalajara mercado reel. Trade the Tokyo flea market for Mercado San Juan de Dios, the vintage-clothing close-up for textiles at Tlaquepaque, the Shibuya chef for a taquero at El Parián. Shibuya Crossing becomes the Cathedral lit up at night. Flair plane lands at GDL. The weekend starts there.",
+    shots: [
+      { t: 0,  type: "MS", desc: "Crowd at vendor van with vintage jackets, 'postcards from tokyo.' title fades in",       move: "Handheld"     },
+      { t: 11, type: "MS", desc: "Interior of Shinshuya Soba in Shibuya, chef ladling broth, price menu overhead",          move: "Static"       },
+      { t: 17, type: "MS", desc: "Shibuya Crossing at night, JR Shibuya Station sign, train passing overhead",              move: "Static"       },
+      { t: 23, type: "MS", desc: "Two guys in cream sweatsuits walking away across crosswalk, Endfield billboard behind",   move: "Tracking"     },
+      { t: 30, type: "MS", desc: "Two guys walking toward camera along Yokojikken River canal, one with film camera",       move: "Slow push-in" },
+      { t: 36, type: "WS", desc: "Yamanote x Saikyo line railway crossing, green-striped train, cyclist waits, power lines", move: "Static"       },
+      { t: 49, type: "MS", desc: "Two guys eating takeout noodles street-side near Kameido, one seated on railing",         move: "Static"       },
+      { t: 55, type: "WS", desc: "Exterior of Maison Hermès Ginza (Renzo Piano glass-block facade), doorman at entrance",   move: "Static"       },
+    ]
+  },
+  {
+    num: "10",
+    title: "Japan Van Trip",
+    adaptTo: "Montreal (YUL)",
+    src: "Videos/11_Japan_Van_Trip.mp4",
+    route: "YUL",
+    flair: "The whole video is shot through a van window. The windshield is the viewfinder. Flair version: swap the van for the plane. Every shot framed through the Flair porthole. Mt. Royal on descent into YUL, the Jacques-Cartier Bridge on taxi, the Old Port at golden hour as the gear locks down. A dépanneur coffee stop replaces the 7-Eleven, bilingual caption replaces the Japanese signage. Same device, new altitude. The plane doesn't cut to the trip. The plane is the trip.",
+    shots: [
+      { t: 0,  type: "WS",       desc: "View through van window onto Mount Fuji across Lake Yamanaka, man in black puffer on shore",       move: "Static"             },
+      { t: 1,  type: "WS",       desc: "Same framing with yellow title overlay 'Japan 日本 / van trip バン旅'",                              move: "Static"             },
+      { t: 9,  type: "MS",       desc: "View through van window into forest, couple embracing face-to-face",                                move: "Static"             },
+      { t: 10, type: "WS",       desc: "View through van window onto Lake Ashi with red Hakone Shrine torii in distance, couple hugging",   move: "Static"             },
+      { t: 11, type: "MS",       desc: "View through van window at coastal viewpoint, woman piggybacking on man, both excited at camera",    move: "Static"             },
+      { t: 13, type: "WS",       desc: "View through van window into snowy forest, snowball fight into embrace",                             move: "Static"             },
+      { t: 16, type: "MS",       desc: "View through van window onto Fuji over Lake Shoji, couple frames the peak with triangle hands",      move: "Static, rack focus" },
+      { t: 20, type: "WS",       desc: "View through van window onto iconic 7-Eleven with Fuji behind, couple drinking hot coffee in puffers", move: "Static"             },
+      { t: 22, type: "MS",       desc: "View through van window onto red Shinto shrine gate, couple from behind facing the temple",          move: "Static"             },
+      { t: 24, type: "CU",       desc: "View through van window at frozen waterfall, couple pressed to glass with exaggerated cold faces",   move: "Static"             },
+      { t: 25, type: "MS",       desc: "View through van window onto snowy mountain range, couple in profile fist-bumping then embracing",    move: "Static"             },
+      { t: 27, type: "MS",       desc: "View through van window into snowy forest, woman in red cap walks past laughing",                    move: "Static"             },
+      { t: 28, type: "WS to CU", desc: "View through open van door onto snowy forest, woman leans into doorway filling frame with smile",    move: "Static"             },
+    ]
+  },
+  {
+    num: "11",
+    title: "Italy Portofino",
+    adaptTo: "Venice Beach (LAX)",
+    src: "Videos/12_Italy_Portofino.mp4",
+    route: "LAX",
+    flair: "The source video already pivots from Portofino to Miami at the end, so it wants to cross an ocean. Flair version: pivot from the Old World to Venice Beach. The Portofino harbour becomes the Venice canals at golden hour. The Mediterranean cliff aerial becomes a drone pass over the Malibu bluffs. The ochre villas become the pastel bungalows on Abbot Kinney. Same palette, different coast. Flair tail on final approach into LAX, then the skater on the boardwalk. Arriving beautifully, lower price point.",
+    shots: [
+      { t: 0,   type: "MS",     desc: "Man in black holding DSLR in kitchen, text overlay 'why do you look so happy?'",       move: "Handheld"            },
+      { t: 3,   type: "TR",     desc: "Black title card: 'because life is beautiful...'",                                        move: "Static"              },
+      { t: 4,   type: "ECU",    desc: "Sunset-lit wave washing over sandy beach with scattered pebbles, warm golden light",      move: "Handheld"            },
+      { t: 4.3, type: "WS",     desc: "Silhouetted palm tree island at orange-gold sunset with sailboats on horizon",            move: "Static"              },
+      { t: 5,   type: "MS",     desc: "Woman in black dress walking through narrow Italian village alley with flowers",          move: "Tracking"            },
+      { t: 6,   type: "WS",     desc: "Rocky cliff face meeting deep blue ocean, white foam waves crashing below",               move: "Slow push-in aerial" },
+      { t: 7,   type: "WS",     desc: "Portofino through opening wooden shutters, ochre bell tower, colourful villas on hill",   move: "Static, rack focus"  },
+      { t: 8,   type: "WS",     desc: "Aerial of Portofino harbour with yachts, colourful waterfront, crowded piazza",           move: "Static aerial"       },
+      { t: 9,   type: "WS",     desc: "Miami Brickell skyline at dusk from water, small boat crossing bay, orange-pink sky",     move: "Static"              },
+      { t: 10,  type: "WS",     desc: "PortMiami at dusk with container cranes foreground, ferris wheel + skyline background",   move: "Static"              },
+    ]
+  },
+  {
+    num: "12",
+    title: "Madrid",
+    adaptTo: "Toronto (YYZ)",
+    src: "Videos/13_Madrid.mp4",
+    route: "YYZ",
+    flair: "Madrid's statues and Edition Hotel grandeur translate to Toronto's downtown core. Swap the Real Casa de Correos for Old City Hall, the Metropolis Building at dusk for the Royal York against the skyline, the open-top tour bus for an Edition-branded shuttle or a streetcar on King West. The 'premium city' energy works for YYZ. Open on a Flair tail at the gate, then into the moody architectural shots. We're not selling a layover, we're selling arrival with attitude.",
+    shots: [
+      { t: 0,    type: "WS",  desc: "Puerta del Sol plaza with Real Casa de Correos clock tower, hooded subject walks foreground right to left, '72 HOURS IN MADRID' title fades in", move: "Static, handheld" },
+      { t: 3,    type: "OTS", desc: "Over-the-shoulder of hooded subject looking at bronze equestrian statue of Carlos III, ornate Madrid building behind",                          move: "Static"           },
+      { t: 3.3,  type: "MS",  desc: "Low-angle of Carlos III equestrian statue with Real Casa de Correos clock tower behind, dramatic sky",                                           move: "Static"           },
+      { t: 4,    type: "OTS", desc: "Over-the-shoulder of subject walking Madrid street flanked by ornate buildings, 'Hotel Inferno' vertical sign right, golden hour tones",          move: "Tracking"         },
+      { t: 4.3,  type: "MS",  desc: "Low-angle of Metropolis Building at dusk with winged Victoria atop, woman in cream coat crosses foreground",                                     move: "Static"           },
+      { t: 5,    type: "MS",  desc: "F1 Gran Premio de España 2026 countdown clock in Puerta del Sol with Sol Metro sign, residential facade behind",                                 move: "Static"           },
+      { t: 5.3,  type: "MS",  desc: "Tattooed man in white beanie on upper deck of open-top tour bus, hand over green seatback, overhead glass canopy",                                move: "Handheld"         },
+      { t: 6,    type: "WS",  desc: "Exterior of The Edition Madrid hotel entrance with living green wall, guests + bellhop at doorway, parked cars either side",                     move: "Static"           },
+      { t: 7,    type: "WS",  desc: "Hotel lounge interior with blue pool table centered under oval pendant light, medieval tapestry on rear wall, warm tungsten",                    move: "Static"           },
+      { t: 7.3,  type: "CU",  desc: "Close-up of racked pool balls on blue felt at break position, yellow cue ball center",                                                            move: "Static"           },
+      { t: 8,    type: "MS",  desc: "Hotel gym interior, shirtless tattooed man doing lat pulldown, digital timer reading 0:41 top left",                                              move: "Static"           },
+      { t: 8.3,  type: "MS",  desc: "Same shirtless tattooed man doing dumbbell curls in hotel gym, treadmills behind, countdown timer top right",                                     move: "Static"           },
+      { t: 9,    type: "MS",  desc: "Metropolis Building dome with winged Victoria in daylight, shot from moving open-top bus with railing foreground",                                move: "Tracking"         },
+      { t: 9.3,  type: "CU",  desc: "Low-angle portrait of woman with wet hair in cream trench coat, eyes closed, Metropolis Building behind against blue sky",                        move: "Handheld"         },
+      { t: 10,   type: "WS",  desc: "Tilt up ornate pale-yellow Madrid apartment facade with rows of wrought-iron balconies and arched windows",                                       move: "Tilt up"          },
+      { t: 11,   type: "MS",  desc: "Low-angle of red Metro sign on ornamental lamppost against washed sky, Samsung billboard behind",                                                 move: "Static"           },
+      { t: 11.3, type: "WS",  desc: "Hotel room, shirtless tattooed man on bed with laptop foreground, woman in robe doing makeup at vanity background, window light",                  move: "Static"           },
+      { t: 12,   type: "WS",  desc: "Tilted street canyon of Madrid residential buildings with continuous iron balconies, dark bus awning upper left",                                  move: "Handheld"         },
+      { t: 12.3, type: "WS",  desc: "Daytime wide of Carlos III equestrian statue in Puerta del Sol with 'Hotel Moderno' sign right, golden-hour light",                               move: "Static"           },
+      { t: 13,   type: "MS",  desc: "Low-angle of Gran Vía corner building with ornate turret, Spanish flag waving from balcony",                                                      move: "Static"           },
+      { t: 13.3, type: "CU",  desc: "Tilted low-angle of Spanish flag flying from building corner against turquoise sky, ornamental decoration left edge",                             move: "Handheld"         },
+      { t: 13.5, type: "WS",  desc: "Low-angle wide of couple seated on curb against graffitied metal shutter, man holds phone camera, woman with Chanel bag taking a selfie",         move: "Static"           },
+      { t: 13.8, type: "MS",  desc: "Tracking man in Stüssy varsity jacket down narrow cobblestone Madrid street, exposed stone wall left, looks back to camera",                       move: "Tracking"         },
+      { t: 14,   type: "MS",  desc: "Profile of woman with long ponytail sipping from takeaway coffee cup, Gran Vía ornate building + yellow delivery truck behind",                    move: "Static"           },
+      { t: 15,   type: "WS",  desc: "Hotel pool room revisit, couple standing together behind blue pool table, tapestry right, warm lighting",                                          move: "Static"           },
+      { t: 15.3, type: "WS",  desc: "Couple silhouetted walking away into The Edition's signature red-lit archway tunnel toward lounge beyond",                                         move: "Static"           },
+      { t: 16,   type: "WS",  desc: "Reverse angle down the red hallway, couple backlit in white lounge at far end, floor lamps either side",                                           move: "Static"           },
+      { t: 16.3, type: "OTS", desc: "Over-the-shoulder of subject facing dusk Madrid skyline, Círculo de Bellas Artes white tower left, statue silhouette right",                       move: "Handheld"         },
+      { t: 17,   type: "WS",  desc: "Night low-angle of Metropolis Building illuminated, 'Mercado de San Antón' parking sign right, blue hour sky",                                    move: "Static"           },
+      { t: 17.3, type: "MS",  desc: "Tighter low-angle of Metropolis dome + winged Victoria against blue-hour sky, logo fades in center",                                               move: "Tilt up"          },
+      { t: 18,   type: "CU",  desc: "Close-up of winged Victoria bronze statue atop Metropolis dome, 'ro & neeko' logo overlay, outro frame",                                           move: "Tilt up"          },
+    ]
+  },
+  {
+    num: "13",
+    title: "City Life",
+    adaptTo: "Vancouver / Toronto / Montreal (Pride)",
+    src: "Videos/14_Istanbul_Vlog.mp4",
+    route: "YVR · YYZ · YUL",
+    flair: "The strength of this reel is old-city character and transit as a stage for human moments. That's a Canadian city reel during Pride. Vancouver: the SkyTrain through Commercial-Broadway, the seawall under rainbow flags, Davie Street at dusk. Toronto: the Queen streetcar, Church-Wellesley block party, the ferry back from the islands. Montreal: the Métro through Berri-UQAM, rue Sainte-Catherine closed for the parade, the Plateau stairs in golden hour. Same grammar, three Canadian cities old enough to have texture and alive enough to earn the energy. Flair gets people here from anywhere we fly. The story is the city loving itself out loud.",
+    shots: [
+      { t: 0,  type: "WS", desc: "Cityscape from a moving train window",           move: "Tracking" },
+      { t: 5,  type: "WS", desc: "Carnival ride spinning against a cloudy sky",    move: "Static"   },
+      { t: 9,  type: "WS", desc: "Duomo di Milano at sunrise",                     move: "Static"   },
+      { t: 13, type: "MS", desc: "Woman walking on a ferry with the city behind", move: "Static"   },
+      { t: 15, type: "WS", desc: "Narrow street with parked cars at sunset",       move: "Static"   },
+    ]
+  },
+  {
+    num: "14",
+    title: "Cruise",
+    adaptTo: "Vancouver (YVR) for Alaska · Fort Lauderdale (FLL) for Caribbean",
+    src: "Videos/15_Cruise.mp4",
+    route: "YVR · FLL",
+    flair: "Cruise content sells the port as much as the ship. Flair is how you get to the port. For Alaska season: YVR is the departure city for almost every Alaska cruise, and Flair flies there from across the country. Open on a Flair tail at YVR, then the shuttle to Canada Place, then the ship pulling away from the mountains. For Caribbean season: FLL is Port Everglades, a short drive from the terminal. Flair tail at FLL, airport shuttle to the port, ship sailing past the Hollywood skyline. The reel doesn't start on the ship, it starts at boarding.",
+    shots: [
+      { t: 0,    type: "WS",  desc: "Aerial of Norwegian Prime cruise ship anchored in open blue water with tender boat alongside, dramatic cloud bank above",                move: "Static aerial"  },
+      { t: 0.3,  type: "WS",  desc: "Tropical bay with turquoise water, small rocky island, white sand beach framed by green hillside, sun flare top-left",                    move: "Static"         },
+      { t: 1,    type: "MS",  desc: "Two women lounging on beach towels on white sand, one in floral swimsuit smiling at camera, one reading red book, turquoise water behind", move: "Static"         },
+      { t: 1.3,  type: "CU",  desc: "Open book + sunglasses resting on rust-red pool lounger cushion with plate of watermelon, pineapple, croissants, plunge pool beside",     move: "Static"         },
+      { t: 1.6,  type: "CU",  desc: "Tilted handheld of ship deck with capstan detail, churning white wake beyond the railing",                                                 move: "Handheld"       },
+      { t: 2,    type: "MS",  desc: "Woman in green floral swimsuit, wet hair, at edge of infinity pool, arms resting on edge, open ocean horizon behind",                      move: "Static"         },
+      { t: 2.3,  type: "WS",  desc: "View from stateroom doorway through balcony to distant mountainous coastline, deck chair silhouetted foreground",                           move: "Static"         },
+      { t: 2.6,  type: "WS",  desc: "Ship's main pool deck with curved pool, waterslide loops above, passengers swimming, futuristic dome architecture behind",                  move: "Static"         },
+      { t: 2.8,  type: "MS",  desc: "Three people in white robes seated inside Himalayan salt room spa with glowing orange salt-brick walls",                                    move: "Static"         },
+      { t: 3,    type: "CU",  desc: "Hand holding frozen cocktail in NCL-branded cup, blue sky + port town coastline behind, ship deck below",                                   move: "Static"         },
+      { t: 3.3,  type: "MS",  desc: "Woman in black tank + jeans on outdoor sofa holding cocktail, looking out over ship wake from aft deck",                                     move: "Static"         },
+      { t: 4,    type: "WS",  desc: "Couple at high-top table on shaded aft deck, both sipping drinks, long white wake trailing across blue ocean behind",                        move: "Static"         },
+      { t: 4.3,  type: "WS",  desc: "Aerial of Great Stirrup Cay beach with lighthouse, rows of blue cabanas + loungers along turquoise cove",                                    move: "Static aerial"  },
+      { t: 4.6,  type: "POV", desc: "POV descending NCL Aqua Slidecoaster, red tunnel wrapping around clear viewing window, rider on blue raft laughing",                         move: "POV, tracking"  },
+      { t: 5,    type: "WS",  desc: "Wide from upper ship deck over infinity pool + lounge, lush green coastline of Roatán-style port in distance",                               move: "Static"         },
+      { t: 5.3,  type: "WS",  desc: "Calm open ocean under clear blue sky, no land in sight, gentle ripples",                                                                     move: "Static"         },
+      { t: 5.6,  type: "WS",  desc: "Swimmers wading in clear turquoise shallows with rocky outcrop + kayaker in background",                                                     move: "Static"         },
+      { t: 6,    type: "MS",  desc: "Couple paddling clear-bottomed tandem kayak through shallow turquoise water, red buoy nearby, rocky shoreline behind",                       move: "Static"         },
+      { t: 6.3,  type: "WS",  desc: "Top-down aerial of shoreline, swimmers wading off white sand beach, yellow floating mats + clusters of people",                              move: "Top-down aerial" },
+      { t: 6.5,  type: "MS",  desc: "Zip-line rider in orange harness arms outstretched, soaring over mangrove lagoon, Norwegian Prime docked in distance",                        move: "Tracking"       },
+      { t: 6.8,  type: "MS",  desc: "Woman in tropical-print one-piece on bow of catamaran with dolphin graphic, legs dangling, ocean + sailboats behind",                         move: "Static"         },
+      { t: 7,    type: "WS",  desc: "Leaning palm tree in foreground framing calm blue bay, dark volcanic rocks piled along shoreline",                                           move: "Static"         },
+      { t: 7.3,  type: "POV", desc: "POV from inside teal Jeep Wrangler on narrow dirt jungle road, second Jeep ahead kicking up dust, dense green foliage",                      move: "Tracking POV"   },
+      { t: 8,    type: "MS",  desc: "Woman with rainbow ski goggles + life vest laughing on front of Yamaha jet ski, NCL staff driver behind, small island on horizon",           move: "Handheld"       },
+      { t: 8.3,  type: "POV", desc: "Interior of dune buggy showing passenger's hand gripping roll cage, watch + bracelets visible, desert landscape blurring past window",       move: "Handheld, tracking" },
+      { t: 8.6,  type: "POV", desc: "POV from Can-Am dune buggy cresting sandy bluff above ocean, second buggy visible ahead on beach below",                                     move: "POV, tracking"  },
+      { t: 9,    type: "WS",  desc: "Three people relaxing in ship's infinity pool at dusk, warm golden step-lighting foreground, Cabo San Lucas arch rock formation behind",     move: "Static"         },
+      { t: 9.3,  type: "WS",  desc: "Deep red sunset over calm ocean, sun low on horizon partially veiled by thin cloud band",                                                     move: "Static"         },
+    ]
+  },
+];
+
+const SHOT_TYPES = {
+  "WS":  "Wide Shot",
+  "MS":  "Medium Shot",
+  "MCU": "Medium Close-Up",
+  "CU":  "Close-Up",
+  "ECU": "Extreme Close-Up",
+  "POV": "Point of View",
+  "OTS": "Over the Shoulder",
+  "TR":  "Transition",
+  "Low Angle/CU": "Low Angle Close-Up",
+  "WS to CU":     "Wide Shot to Close-Up",
+};
+const typeTitle = (t) => SHOT_TYPES[t] || t;
+
+const fmt = (s) => {
+  const whole = Math.floor(s);
+  const frac = s - whole;
+  const secs = String(whole).padStart(2, "0");
+  return frac > 0 ? `0:${secs}.${Math.round(frac * 10)}` : `0:${secs}`;
+};
+const stack = document.getElementById("stack");
+
+STUDIES.forEach((study, idx) => {
+  const card = document.createElement("article");
+  card.className = "card";
+
+  const routeLabel = study.direct
+    ? `<span class="route-tag direct">DIRECT FLAIR ROUTE</span><span class="route-label">${study.route}</span>`
+    : `<span class="route-tag adapt">ADAPT FOR FLAIR</span><span class="route-label">${study.adaptTo || study.route}</span>`;
+
+  card.innerHTML = `
+    <header class="card-head">
+      <div class="card-head-left">
+        <div class="video-num">STUDY Nº ${study.num}</div>
+        <h2>${study.title}</h2>
+      </div>
+      <div class="card-head-right">
+        ${routeLabel}
+      </div>
+    </header>
+    <div class="card-body">
+      <div class="video-col">
+        <video src="${study.src}" controls playsinline preload="metadata"></video>
+      </div>
+      <div class="shots-col">
+        <div class="why">
+          <div class="why-label">THE FLAIR VERSION</div>
+          <p class="why-text">${study.flair}</p>
+        </div>
+        <div class="shots-header">
+          <div>TIME</div><div>TYPE</div><div>SHOT</div><div style="text-align:right">MOVE</div>
+        </div>
+        <div class="shots-list"></div>
+      </div>
+    </div>
+  `;
+
+  const video = card.querySelector("video");
+  const list = card.querySelector(".shots-list");
+
+  study.shots.forEach((shot, i) => {
+    const row = document.createElement("div");
+    row.className = "shot-row";
+    row.innerHTML = `
+      <div class="shot-time">${fmt(shot.t)}</div>
+      <div><span class="shot-type" data-tip="${typeTitle(shot.type)}">${shot.type}</span></div>
+      <div class="shot-desc">${shot.desc}</div>
+      <div class="shot-move">${shot.move}</div>
+    `;
+    row.addEventListener("click", () => {
+      video.currentTime = shot.t;
+      video.play();
+    });
+    list.appendChild(row);
+  });
+
+  let lastActiveIdx = -1;
+  video.addEventListener("timeupdate", () => {
+    const t = video.currentTime;
+    let activeIdx = -1;
+    for (let i = study.shots.length - 1; i >= 0; i--) {
+      if (t >= study.shots[i].t) { activeIdx = i; break; }
+    }
+    if (activeIdx === lastActiveIdx) return;
+    lastActiveIdx = activeIdx;
+
+    const rows = list.querySelectorAll(".shot-row");
+    rows.forEach((row, i) => {
+      row.classList.toggle("active", i === activeIdx);
+    });
+    if (activeIdx >= 0) {
+      rows[activeIdx].scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }
+  });
+
+  stack.appendChild(card);
+});
+</script>
+</body>
+</html>
